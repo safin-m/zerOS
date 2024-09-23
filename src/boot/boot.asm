@@ -43,7 +43,7 @@ print_msg:
 msg: db 'Bootloader', 0   ; message to print
 
 
-times 510 - ($ - $$) db 0   ; fill the rest of the sector with 0 for boot signature
+times 510 - ($ - $$) db 0 ; fill the rest of the sector with 0 for boot signature
 dw 0xAA55                 ; boot signature (little endian byte order for x86)
  
  ;The code is simple, it prints the message on the screen with a background color of 0. 

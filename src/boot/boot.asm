@@ -3,7 +3,7 @@ BITS 16                   ; 16 bit code
 
 _start:
     jmp short start       ; jump to start label
-    nop
+    nop                   ; no operation
 
 times 33 db 0             ; fill the rest of the sector with 0 for boot signature
 

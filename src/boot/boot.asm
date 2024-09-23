@@ -27,7 +27,7 @@ next:
 print:
     mov BX, 0             ; set video memory address to 0
 .loop:
-    lodsb                ; load byte from SI to AL
+    lodsb                 ; load byte from SI to AL
     cmp AL, 0             ; check if AL is 0 (end of string)
     je .done              ; if AL is 0, jump to done
     call print_msg        ; call print_msg function
@@ -36,14 +36,14 @@ print:
     ret                   ; return from the function
 
 print_msg:
-    mov AH, 0xEH          ; set teletype function
+    mov AH, 0EH           ; set teletype function
     int 0x10              ; call bios interrupt to print character
     ret                   ; return from the function
 
 msg: db 'Bootloader', 0   ; message to print
 
 
-times 510-($ - $$) db 0   ; fill the rest of the sector with 0 for boot signature
+times 510 - ($ - $$) db 0   ; fill the rest of the sector with 0 for boot signature
 dw 0xAA55                 ; boot signature (little endian byte order for x86)
  
  ;The code is simple, it prints the message on the screen with a background color of 0. 

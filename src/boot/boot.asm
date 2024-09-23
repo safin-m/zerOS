@@ -22,6 +22,7 @@ print:
     cmp AL, 0            ; check if AL is 0 (end of string)
     je .done             ; if AL is 0, jump to done
     call print_msg       ; call print_msg function
+    jmp .loop            ; loop back to load next character
 .done:
     ret                  ; return from the function
 

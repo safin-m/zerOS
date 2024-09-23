@@ -1,6 +1,8 @@
 ORG 0                     ; boot sector origin
 BITS 16                   ; 16 bit code
 
+jmp 0x7C0:start           ; jump to start label
+
 start:                    ; bios routine
     cli                   ; clear interrupts
     mov AX, 0x07C0        ; set data segment to 0x07C0

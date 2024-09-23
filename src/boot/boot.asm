@@ -1,9 +1,16 @@
 ORG 0                     ; boot sector origin
 BITS 16                   ; 16 bit code
 
-jmp 0x7C0:start           ; jump to start label
+_start:
+    jmp short start       ; jump to start label
+    nop
+
+times 33 db 0             ; fill the rest of the sector with 0 for boot signature
 
 start:                    ; bios routine
+    jmp 0x7C0:next        ; jump to start label
+
+next:
     cli                   ; clear interrupts
     mov AX, 0x07C0        ; set data segment to 0x07C0
     mov DS, AX            ; set data segment to 0x07C0

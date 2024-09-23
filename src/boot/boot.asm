@@ -27,11 +27,11 @@ print:
     ret                  ; return from the function
 
 print_msg:
-    mov AH, 0xEH         ; set function to print character
+    mov AH, 0xEH         ; set teletype function
     int 0x10             ; call bios interrupt to print character
     ret                  ; return from the function
 
-msg db 'Bootloader', 0   ; message to print
+msg: db 'Bootloader', 0   ; message to print
 
 
 times 510-($ - $$) db 0  ; fill the rest of the sector with 0 for boot signature

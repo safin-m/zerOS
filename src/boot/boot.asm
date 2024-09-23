@@ -20,7 +20,7 @@ start:                    ; bios routine
 print:
     mov BX, 0             ; set video memory address to 0
 .loop:
-    loadsb                ; load byte from SI to AL
+    lodsb                ; load byte from SI to AL
     cmp AL, 0             ; check if AL is 0 (end of string)
     je .done              ; if AL is 0, jump to done
     call print_msg        ; call print_msg function

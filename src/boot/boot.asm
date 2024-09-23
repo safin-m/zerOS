@@ -27,7 +27,7 @@ print:
     ret                  ; return from the function
 
 print_msg:
-    move AH, 0x0E        ; set teletype mode
+    mov AH, 0xEH         ; set function to print character
     int 0x10             ; call bios interrupt to print character
     ret                  ; return from the function
 

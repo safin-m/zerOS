@@ -6,3 +6,5 @@ then
 else
     echo "cargo-make is already installed"
 fi
+cargo install cargo-binutils
+rustup component add llvm-tools-preview

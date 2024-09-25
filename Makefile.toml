@@ -1,0 +1,12 @@
+[tasks.create_build_dir]
+condition = { platforms = ["windows"] }
+script = ["mkdir build"]
+
+[tasks.create_build_dir_unix]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build"]
+
+[tasks.build_boot]
+dependencies = ["create_build_dir", "create_build_dir_unix"]
+command = "nasm"
+args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./build/boot.bin"]

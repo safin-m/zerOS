@@ -2,7 +2,17 @@
 
 Minimal operating system written in Rust
 
-## Setup Instructions
+| **Getting Started** |
+
+## Install Rust
+
+Install Rust via rustup with this command:
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Or follow the instructions here [Rust Installation Guide](https://www.rust-lang.org/tools/install)
 
 ### Unix-based Systems
 

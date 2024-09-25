@@ -31,5 +31,5 @@ Minimal operating system written in Rust
 Run the following command to fetch the Rust dependencies:
 
 ```sh
-cargo fetch
+   cargo fetch
 ```

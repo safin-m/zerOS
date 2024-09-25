@@ -33,3 +33,11 @@ Run the following command to fetch the Rust dependencies:
 ```sh
 cargo fetch
 ```
+
+### Build Boot Binary
+
+Run the following command to build the bootloader binary:
+
+```sh
+cargo make build_boot
+```

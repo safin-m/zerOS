@@ -49,5 +49,5 @@ cargo fetch
 Run the following command to build the bootloader binary:
 
 ```sh
-cargo make build_boot
+cargo make bin
 ```

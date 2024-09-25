@@ -1,12 +1,23 @@
-[tasks.create_build_dir]
+[tasks.create_bin_dir]
 condition = { platforms = ["windows"] }
-script = ["mkdir build"]
+script = ["mkdir bin"]
 
-[tasks.create_build_dir_unix]
+[tasks.create_bin_dir_unix]
 condition = { platforms = ["linux", "mac"] }
-script = ["mkdir -p build"]
+script = ["mkdir -p bin"]
 
-[tasks.build_boot]
-dependencies = ["create_build_dir", "create_build_dir_unix"]
+[tasks.bin]
+dependencies = ["create_bin_dir", "create_bin_dir_unix"]
 command = "nasm"
-args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./build/boot.bin"]
+args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./bin/boot.bin"]
+
+[tasks.clean_windows]
+condition = { platforms = ["windows"] }
+script = ["rmdir /S /Q bin"]
+
+[tasks.clean_unix]
+condition = { platforms = ["linux", "mac"] }
+script = ["rm -rf ./bin"]
+
+[tasks.clean]
+dependencies = ["clean_windows", "clean_unix"]

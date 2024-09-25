@@ -1,52 +1,80 @@
-ORG 0                     ; boot sector origin
-BITS 16                   ; 16 bit code
+ORG 0x7C00                                ; boot sector origin
+BITS 16
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
 
 _start:
-    jmp short start       ; jump to start label
-    nop                   ; no operation
+    jmp short start
+    nop
 
-times 33 db 0             ; fill the rest of the sector with 0 for boot signature
+times 33 db 0                             ; fill the rest of the sector with 0 for boot signature
 
-start:                    ; bios routine
-    jmp 0x7C0:next        ; jump to start label
+start:
+    jmp 0:next
 
 next:
-    cli                   ; clear interrupts
-    mov AX, 0x07C0        ; set data segment to 0x07C0
-    mov DS, AX            ; set data segment to 0x07C0
-    mov ES, AX            ; set extra segment to 0x07C0
-    mov AX, 0x00          ; set stack segment to 0x0000
-    mov SS, AX            ; set stack segment to 0x0000
-    mov SP, 0x7C00        ; set stack pointer to 0x7C00
-    sti                   ; set interrupts
-    
-    mov SI, msg           ; set SI to point to the message
-    call print            ; call the print function
-    jmp $                 ; infinite loop to stop the cpu from executing random code after the boot sector
+    cli                                   
+    mov AX, 0x00
+    mov DS, AX
+    mov ES, AX
+    mov SS, AX
+    mov SP, 0x7C00
+    sti
 
-print:
-    mov BX, 0             ; set video memory address to 0
-.loop:
-    lodsb                 ; load byte from SI to AL
-    cmp AL, 0             ; check if AL is 0 (end of string)
-    je .done              ; if AL is 0, jump to done
-    call print_msg        ; call print_msg function
-    jmp .loop             ; loop back to load next character
-.done:
-    ret                   ; return from the function
-
-print_msg:
-    mov AH, 0EH           ; set teletype function
-    int 0x10              ; call bios interrupt to print character
-    ret                   ; return from the function
-
-msg: db 'Bootloader', 0   ; message to print
+.load_protected_mode:
+    cli
+    lgdt [gdt_descriptor]                 ; load the gdt
+    mov EAX, CR0
+    or EAX, 0x1                           ; set the first bit of CR0 to 1
+    mov CR0, EAX
+    jmp CODE_SEG:load32                   ; jump to the next instruction in 32-bit mode
 
 
-times 510 - ($ - $$) db 0 ; fill the rest of the sector with 0 for boot signature
-dw 0xAA55                 ; boot signature (little endian byte order for x86)
+gdt_start:
+
+gdt_null:
+    dd 0x0                                ; first 32 bits of base address
+    dd 0x0                                ; first 32 bits of segment limit
+
+gdt_code:                                 ; should point to CS, 0x10 offset
+    dw 0xFFFF                             ; first 16 bits of segment limit
+    dw 0x0                                ; first 16 bits of base address
+    db 0x0                                ; next 8 bits of base address
+    db 0x9A                               ; access byte
+    db 11001111b                          ; high-low 4-bit flags
+    db 0x0                                ; last 8 bits of base address
+
+gdt_data:                                 ; should point to DS, SS, ES, GS, FS
+    dw 0xFFFF
+    dw 0x0
+    db 0x0
+    db 0x92
+    db 11001111b
+    db 0x0
+
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1            ; size of gdt
+    dd gdt_start                          ; base address of gdt
+
+[BITS 32]
+load32:
+    mov AX, DATA_SEG
+    mov DS, AX
+    mov ES, AX
+    mov FS, AX
+    mov GS, AX
+    mov SS, AX
+    mov ebp, 0x00200000                  ; set the base pointer to 2MB
+    mov esp, ebp                         ; set the stack pointer to 2MB
+    jmp $
+
+times 510 - ($ - $$) db 0                 ; fill the rest of the sector with 0 for boot signature
+dw 0xAA55                                 ; boot signature (little endian byte order for x86)
  
- ;As of now, the bootloader prints the message on the screen through bios interrupts and the helper functions. 
+ ;Boot sector that loads the GDT and switches to protected mode. 
  ;To compile the code, we need to use the nasm assembler. 
  ;nasm -f bin ./boot.asm -o ./boot.bin
  

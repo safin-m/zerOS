@@ -28,7 +28,7 @@ next:
     mov EAX, CR0
     or EAX, 0x1                           ; set the first bit of CR0 to 1
     mov CR0, EAX
-    jmp CODE_SEG:load32                   ; jump to the next instruction in 32-bit mode
+    jmp CODE_SEG:100000                  ; jump to the next instruction in 32-bit mode
 
 
 gdt_start:
@@ -58,23 +58,6 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1            ; size of gdt
     dd gdt_start                          ; base address of gdt
-
-[BITS 32]
-load32:
-    mov AX, DATA_SEG
-    mov DS, AX
-    mov ES, AX
-    mov FS, AX
-    mov GS, AX
-    mov SS, AX
-    mov ebp, 0x00200000                  ; set the base pointer to 2MB
-    mov esp, ebp                         ; set the stack pointer to 2MB
-
-    in AL, 0x92                          ; read the value of the keyboard controller
-    or AL, 2
-    out 0x92, AL                         ; write the value back to the keyboard controller
-    
-    jmp $
 
 times 510 - ($ - $$) db 0                 ; fill the rest of the sector with 0 for boot signature
 dw 0xAA55                                 ; boot signature (little endian byte order for x86)

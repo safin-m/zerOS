@@ -46,8 +46,8 @@ cargo fetch
 
 ### Build Boot Binary
 
-Run the following command to build the bootloader binary:
+Run the following command to build the bootloader binary and kernel:
 
 ```sh
-cargo make bin
+cargo make start
 ```

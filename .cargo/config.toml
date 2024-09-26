@@ -1,0 +1,9 @@
+[build]
+target = "i686-unknown-none-elf.json"
+
+[target.i686-unknown-none-elf]
+linker = "i686-elf-ld"
+rustflags = [
+    "-C", "link-arg=-Tlinker.ld",
+    "-C", "link-arg=--oformat=binary"
+]

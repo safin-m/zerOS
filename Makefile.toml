@@ -6,18 +6,55 @@ script = ["mkdir bin"]
 condition = { platforms = ["linux", "mac"] }
 script = ["mkdir -p bin"]
 
-[tasks.bin]
+[tasks.create_build_dir]
+condition = { platforms = ["windows"] }
+script = ["mkdir build"]
+
+[tasks.create_build_dir_unix]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build"]
+
+[tasks.boot]
 dependencies = ["create_bin_dir", "create_bin_dir_unix"]
 command = "nasm"
 args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./bin/boot.bin"]
 
+[tasks.kernel]
+dependencies = ["create_build_dir", "create_build_dir_unix"]
+command = "nasm"
+args = ["-f", "elf", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
+
+[tasks.build_start]
+dependencies = ["clean", "boot", "kernel"]
+
+[tasks.start_windows]
+dependencies = ["build_start"]
+condition = { platforms = ["windows"] }
+script = ["powershell -Command \"Get-Content -Raw ./bin/boot.bin | Set-Content -NoNewline ./bin/os.bin\""]
+
+[tasks.start_unix]
+dependencies = ["build_start"]
+condition = { platforms = ["linux", "mac"] }
+script = ["dd if=./bin/boot.bin >> ./bin/os.bin"]
+
+[tasks.start]
+dependencies = ["start_windows", "start_unix"]
+
 [tasks.clean_windows]
 condition = { platforms = ["windows"] }
-script = ["rmdir /S /Q bin"]
+script = [
+    "if exist build rmdir /S /Q build",
+    "if exist target rmdir /S /Q target",
+    "if exist bin rmdir /S /Q bin"
+]
 
 [tasks.clean_unix]
 condition = { platforms = ["linux", "mac"] }
-script = ["rm -rf ./bin"]
+script = [
+    "test -d ./build && rm -rf ./build",
+    "test -d ./target && rm -rf ./target",
+    "test -d ./bin && rm -rf ./bin"
+]
 
 [tasks.clean]
 dependencies = ["clean_windows", "clean_unix"]

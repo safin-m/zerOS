@@ -8,3 +8,4 @@ else
 fi
 cargo install cargo-binutils
 rustup component add llvm-tools-preview
+brew install nasm

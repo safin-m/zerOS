@@ -6,5 +6,6 @@ if %ERRORLEVEL% NEQ 0 (
 ) else (
     echo cargo-make is already installed
 )
+winget install nasm
 cargo install cargo-binutils
 rustup component add llvm-tools-preview

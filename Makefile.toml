@@ -1,60 +1,41 @@
 [tasks.create_bin_dir]
-condition = { platforms = ["windows"] }
-script = ["mkdir bin"]
-
-[tasks.create_bin_dir_unix]
 condition = { platforms = ["linux", "mac"] }
 script = ["mkdir -p bin"]
 
 [tasks.create_build_dir]
-condition = { platforms = ["windows"] }
-script = ["mkdir build"]
-
-[tasks.create_build_dir_unix]
 condition = { platforms = ["linux", "mac"] }
 script = ["mkdir -p build"]
 
-[tasks.boot]
-dependencies = ["create_bin_dir", "create_bin_dir_unix"]
+[tasks.boot_assemble]
+dependencies = ["create_bin_dir"]
 command = "nasm"
 args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./bin/boot.bin"]
 
-[tasks.kernel]
-dependencies = ["create_build_dir", "create_build_dir_unix"]
+[tasks.kernel_assemble]
+dependencies = ["create_build_dir"]
 command = "nasm"
 args = ["-f", "elf", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
 
-[tasks.build_start]
-dependencies = ["clean", "boot", "kernel"]
+[tasks.kernel_link]
+dependencies = ["kernel_assemble"]
+command = "i386-elf-ld"
+args=["-g", "-r", "./build/kernel.asm.o", "-o", "./build/kernel.o"]
 
-[tasks.start_windows]
-dependencies = ["build_start"]
-condition = { platforms = ["windows"] }
-script = ["powershell -Command \"Get-Content -Raw ./bin/boot.bin | Set-Content -NoNewline ./bin/os.bin\""]
+[tasks.start]
+dependencies = ["clean_all", "os_assemble", "kernel_link"]
 
-[tasks.start_unix]
-dependencies = ["build_start"]
+[tasks.os_assemble]
+dependencies = ["boot_assemble"]
 condition = { platforms = ["linux", "mac"] }
 script = ["dd if=./bin/boot.bin >> ./bin/os.bin"]
 
-[tasks.start]
-dependencies = ["start_windows", "start_unix"]
-
-[tasks.clean_windows]
-condition = { platforms = ["windows"] }
-script = [
-    "if exist build rmdir /S /Q build",
-    "if exist target rmdir /S /Q target",
-    "if exist bin rmdir /S /Q bin"
-]
-
-[tasks.clean_unix]
+[tasks.clean_all]
 condition = { platforms = ["linux", "mac"] }
 script = [
-    "test -d ./build && rm -rf ./build",
-    "test -d ./target && rm -rf ./target",
-    "test -d ./bin && rm -rf ./bin"
+    "echo 'Cleaning build directory...'",
+    "test -d ./build && rm -rf ./build || echo 'Build directory does not exist'",
+    "echo 'Cleaning target directory...'",
+    "test -d ./target && rm -rf ./target || echo 'Target directory does not exist'",
+    "echo 'Cleaning bin directory...'",
+    "test -d ./bin && rm -rf ./bin || echo 'Bin directory does not exist'"
 ]
-
-[tasks.clean]
-dependencies = ["clean_windows", "clean_unix"]

@@ -62,10 +62,4 @@ gdt_descriptor:
 times 510 - ($ - $$) db 0                 ; fill the rest of the sector with 0 for boot signature
 dw 0xAA55                                 ; boot signature (little endian byte order for x86)
  
- ;Boot sector that loads the GDT and switches to protected mode. 
- ;To compile the code, we need to use the nasm assembler. 
- ;nasm -f bin ./boot.asm -o ./boot.bin
- 
- ;The command above will generate a binary file called boot.bin. 
- ;Now we need to create a disk image and copy the boot.bin file to it. 
- ;dd if=/dev/zero of=disk.img bs=512 count=2880
+;Boot sector that loads the GDT and switches to protected mode.

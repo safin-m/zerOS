@@ -28,14 +28,6 @@ Or follow the instructions here [Rust Installation Guide](https://www.rust-lang.
    ./install-deps.sh
    ```
 
-### Windows
-
-1. Run the `install-deps.bat` script to install dependencies:
-
-   ```cmd
-   install-deps.bat
-   ```
-
 ### Fetch Rust Dependencies
 
 Run the following command to fetch the Rust dependencies:

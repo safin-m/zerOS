@@ -9,9 +9,6 @@
   "pre-link-args": {
     "ld": ["-T", "./src/linker.ld"]
   },
-  "post-link-args": {
-    "ld": ["--oformat", "elf32-i386"]
-  },
   "panic-strategy": "abort",
   "disable-redzone": true,
   "features": "+sse,+sse2",

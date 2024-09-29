@@ -18,16 +18,22 @@ args = ["-f", "elf", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
 
 [tasks.kernel_link]
 dependencies = ["kernel_assemble"]
-command = "i386-elf-ld"
-args=["-g", "-r", "./build/kernel.asm.o", "-o", "./build/kernel.o"]
+script = [
+    "i686-elf-ld -g -r ./build/kernel.asm.o -o ./build/kernelfull.o",
+    "i686-elf-gcc -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o",
+]
 
 [tasks.start]
-dependencies = ["clean_all", "os_assemble", "kernel_link"]
+dependencies = ["clean_all", "os_assemble"]
 
 [tasks.os_assemble]
-dependencies = ["boot_assemble"]
+dependencies = ["boot_assemble", "kernel_link"]
 condition = { platforms = ["linux", "mac"] }
-script = ["dd if=./bin/boot.bin >> ./bin/os.bin"]
+script = [
+    "rm -rf ./bin/os.bin",
+    "dd if=./bin/boot.bin >> ./bin/os.bin",
+    "dd if=./bin/kernel.bin >> ./bin/os.bin"
+    ]
 
 [tasks.clean_all]
 condition = { platforms = ["linux", "mac"] }

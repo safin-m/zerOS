@@ -37,21 +37,16 @@ else
     echo "nasm is already installed"
 fi
 
-
-brew tap nativeos/i386-elf-toolchain
-
-
-if ! command_exists i386-elf-binutils; then
-    echo "Installing i386-elf-binutils..."
-    brew install nativeos/i386-elf-toolchain/i386-elf-binutils
+if ! command_exists i686-elf-gcc; then
+    echo "Installing i686-elf-gcc..."
+    brew install i686-elf-gcc
 else
-    echo "i386-elf-binutils is already installed."
+    echo "i686-elf-gcc is already installed."
 fi
 
-
-if ! command_exists i386-elf-gcc; then
-    echo "Installing i386-elf-gcc..."
-    brew install nativeos/i386-elf-toolchain/i386-elf-gcc
+if ! command_exists i686-elf-binutils; then
+    echo "Installing i686-elf-binutils..."
+    brew install i686-elf-binutils
 else
-    echo "i386-elf-gcc is already installed."
+    echo "i686-elf-binutils is already installed."
 fi

@@ -32,7 +32,8 @@ condition = { platforms = ["linux", "mac"] }
 script = [
     "rm -rf ./bin/os.bin",
     "dd if=./bin/boot.bin >> ./bin/os.bin",
-    "dd if=./bin/kernel.bin >> ./bin/os.bin"
+    "dd if=./bin/kernel.bin >> ./bin/os.bin",
+    "dd if=/dev/zero bs=512 count=100 >> ./bin/os.bin"
     ]
 
 [tasks.clean_all]

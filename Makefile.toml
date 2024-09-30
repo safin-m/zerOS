@@ -1,23 +1,48 @@
 [tasks.create_bin_dir]
-condition = { platforms = ["windows"] }
-script = ["mkdir bin"]
-
-[tasks.create_bin_dir_unix]
 condition = { platforms = ["linux", "mac"] }
 script = ["mkdir -p bin"]
 
-[tasks.bin]
-dependencies = ["create_bin_dir", "create_bin_dir_unix"]
+[tasks.create_build_dir]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build"]
+
+[tasks.boot_assemble]
+dependencies = ["create_bin_dir"]
 command = "nasm"
 args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./bin/boot.bin"]
 
-[tasks.clean_windows]
-condition = { platforms = ["windows"] }
-script = ["rmdir /S /Q bin"]
+[tasks.kernel_assemble]
+dependencies = ["create_build_dir"]
+command = "nasm"
+args = ["-f", "elf", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
 
-[tasks.clean_unix]
+[tasks.kernel_link]
+dependencies = ["kernel_assemble"]
+script = [
+    "i686-elf-ld -g -r ./build/kernel.asm.o -o ./build/kernelfull.o",
+    "i686-elf-gcc -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o",
+]
+
+[tasks.start]
+dependencies = ["clean_all", "os_assemble"]
+
+[tasks.os_assemble]
+dependencies = ["boot_assemble", "kernel_link"]
 condition = { platforms = ["linux", "mac"] }
-script = ["rm -rf ./bin"]
+script = [
+    "rm -rf ./bin/os.bin",
+    "dd if=./bin/boot.bin >> ./bin/os.bin",
+    "dd if=./bin/kernel.bin >> ./bin/os.bin",
+    "dd if=/dev/zero bs=512 count=100 >> ./bin/os.bin"
+    ]
 
-[tasks.clean]
-dependencies = ["clean_windows", "clean_unix"]
+[tasks.clean_all]
+condition = { platforms = ["linux", "mac"] }
+script = [
+    "echo 'Cleaning build directory...'",
+    "test -d ./build && rm -rf ./build || echo 'Build directory does not exist'",
+    "echo 'Cleaning target directory...'",
+    "test -d ./target && rm -rf ./target || echo 'Target directory does not exist'",
+    "echo 'Cleaning bin directory...'",
+    "test -d ./bin && rm -rf ./bin || echo 'Bin directory does not exist'"
+]

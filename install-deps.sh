@@ -1,11 +1,52 @@
 #!/bin/sh
-if ! command -v cargo-make &> /dev/null
-then
+
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+
+if ! command_exists cargo-make; then
     echo "cargo-make could not be found, installing..."
     cargo install cargo-make --version 0.37.16
 else
     echo "cargo-make is already installed"
 fi
-cargo install cargo-binutils
-rustup component add llvm-tools-preview
-brew install nasm
+
+
+if ! command_exists cargo-binutils; then
+    echo "cargo-binutils could not be found, installing..."
+    cargo install cargo-binutils
+else
+    echo "cargo-binutils is already installed"
+fi
+
+
+if ! rustup component list | grep "llvm-tools-preview.*(installed)" >/dev/null 2>&1; then
+    echo "llvm-tools-preview component could not be found, adding..."
+    rustup component add llvm-tools-preview
+else
+    echo "llvm-tools-preview component is already added"
+fi
+
+
+if ! command_exists nasm; then
+    echo "nasm could not be found, installing..."
+    brew install nasm
+else
+    echo "nasm is already installed"
+fi
+
+if ! command_exists i686-elf-gcc; then
+    echo "Installing i686-elf-gcc..."
+    brew install i686-elf-gcc
+else
+    echo "i686-elf-gcc is already installed."
+fi
+
+if ! command_exists i686-elf-binutils; then
+    echo "Installing i686-elf-binutils..."
+    brew install i686-elf-binutils
+else
+    echo "i686-elf-binutils is already installed."
+fi

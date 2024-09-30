@@ -7,3 +7,14 @@ edition = "2021"
 
 [dependencies]
 nasm-rs = "0.3.0"
+
+[profile.dev]
+panic = "abort"
+lto = true
+
+[profile.release]
+panic = "abort"
+lto = true
+
+[build]
+build = "build.rs"

@@ -20,3 +20,5 @@ _start:
     out 0x92, AL                         ; write the value back to the keyboard controller
     
     jmp $
+
+times 512 - ($ - $$) db 0

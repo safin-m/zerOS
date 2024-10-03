@@ -6,6 +6,25 @@ command_exists() {
 }
 
 
+if ! command_exists rustup; then
+    echo "Rust could not be found, installing Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+else
+    echo "Rust is already installed on your system"
+fi
+
+
+if rustup show active-toolchain | grep -q "nightly"; then
+    echo "Rust is already set to nightly"
+else
+    echo "Setting Rust to nightly..."
+    rustup override set nightly
+fi
+
+
+rustup component add rust-src
+
+
 if ! command_exists cargo-make; then
     echo "cargo-make could not be found, installing..."
     cargo install cargo-make --version 0.37.16
@@ -14,15 +33,7 @@ else
 fi
 
 
-if ! command_exists cargo-binutils; then
-    echo "cargo-binutils could not be found, installing..."
-    cargo install cargo-binutils
-else
-    echo "cargo-binutils is already installed"
-fi
-
-
-if ! rustup component list | grep "llvm-tools-preview.*(installed)" >/dev/null 2>&1; then
+if ! rustup component list --installed | grep -q "llvm-tools"; then
     echo "llvm-tools-preview component could not be found, adding..."
     rustup component add llvm-tools-preview
 else
@@ -37,16 +48,18 @@ else
     echo "nasm is already installed"
 fi
 
-if ! command_exists i686-elf-gcc; then
-    echo "Installing i686-elf-gcc..."
-    brew install i686-elf-gcc
+
+if ! command_exists x86_64-elf-gcc; then
+    echo "Installing x86_64-elf-gcc..."
+    brew install x86_64-elf-gcc
 else
-    echo "i686-elf-gcc is already installed."
+    echo "x86_64-elf-gcc is already installed."
 fi
 
-if ! command_exists i686-elf-binutils; then
-    echo "Installing i686-elf-binutils..."
-    brew install i686-elf-binutils
+
+if ! command_exists x86_64-elf-ld; then
+    echo "Installing x86_64-elf-binutils..."
+    brew install x86_64-elf-binutils
 else
-    echo "i686-elf-binutils is already installed."
+    echo "x86_64-elf-binutils is already installed."
 fi

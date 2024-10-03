@@ -2,24 +2,24 @@ ENTRY(_start)
 OUTPUT_FORMAT(binary)
 SECTIONS
 {
-    . = 1M;
+    . = 0x100000;
     
-    .text : ALIGN(4096)
+    .text : ALIGN(0x1000)
     {
         *(.text)
     }
 
-    .rodata : ALIGN(4096)
+    .rodata : ALIGN(0x1000)
     {
         *(.rodata)
     }
 
-    .data : ALIGN(4096)
+    .data : ALIGN(0x1000)
     {
         *(.data)
     }
 
-    .bss : ALIGN(4096)
+    .bss : ALIGN(0x1000)
     {
         *(COMMON)
         *(.bss)

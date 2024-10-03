@@ -6,28 +6,35 @@ script = ["mkdir -p bin"]
 condition = { platforms = ["linux", "mac"] }
 script = ["mkdir -p build"]
 
-[tasks.boot_assemble]
+[tasks.boot_assembly_to_binary]
 dependencies = ["create_bin_dir"]
 command = "nasm"
 args = ["-f", "bin", "./src/boot/boot.asm", "-o", "./bin/boot.bin"]
 
-[tasks.kernel_assemble]
+[tasks.kernel_assembly_to_object]
 dependencies = ["create_build_dir"]
 command = "nasm"
-args = ["-f", "elf", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
+args = ["-f", "elf64", "-g", "./src/kernel.asm", "-o", "./build/kernel.asm.o"]
 
-[tasks.kernel_link]
-dependencies = ["kernel_assemble"]
+[tasks.compile_rust_kernel]
+dependencies = ["create_build_dir"]
 script = [
-    "i686-elf-ld -g -r ./build/kernel.asm.o -o ./build/kernelfull.o",
-    "i686-elf-gcc -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o",
+    "cargo build --release",
+    "cp target/x86_64-unknown-none/release/libzer_os.a ./build/rust_kernel.o"
+]
+
+[tasks.kernel_object_to_binary]
+dependencies = ["kernel_assembly_to_object", "compile_rust_kernel"]
+script = [
+    "x86_64-elf-ld -g -r ./build/kernel.asm.o ./build/rust_kernel.o -o ./build/kernelfull.o",
+    "x86_64-elf-gcc -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o",
 ]
 
 [tasks.start]
 dependencies = ["clean_all", "os_assemble"]
 
 [tasks.os_assemble]
-dependencies = ["boot_assemble", "kernel_link"]
+dependencies = ["boot_assembly_to_binary", "kernel_object_to_binary"]
 condition = { platforms = ["linux", "mac"] }
 script = [
     "rm -rf ./bin/os.bin",

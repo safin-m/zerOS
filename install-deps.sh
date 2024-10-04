@@ -63,3 +63,10 @@ if ! command_exists x86_64-elf-ld; then
 else
     echo "x86_64-elf-binutils is already installed."
 fi
+
+if ! command_exists cargo bootimage; then
+    echo "Adding bootimage..."
+    cargo install bootimage
+else 
+    echo "Bootimage is already installed."
+fi

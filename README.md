@@ -2,28 +2,36 @@
 
 Minimal operating system written in Rust
 
-| **Getting Started** |
+## Set up the environment
 
-## Build Process
-
-### Set up the environment
-
-1. Make the `install-deps.sh` script executable:
-
-   ```sh
-   chmod +x install-deps.sh
-   ```
-
-2. Run the `install-deps.sh` script to install dependencies and build tools:
-
-   ```sh
-   ./install-deps.sh
-   ```
-
-## Build Binary-ELF OS
-
-Run the following command to build the bootable bootloader binary and kernel:
+To set up the environment and to build your own bootloader or use the bootimage tool run the following commands
 
 ```sh
-cargo make start
+   chmod +x ./install-deps.sh
+```
+
+```sh
+   ./install-deps.sh
+```
+
+## Build and Run
+
+The runner is set up to compile, build and run the OS
+
+To build run the following commands:
+
+```sh
+   cargo bootimage
+```
+
+and then,
+
+```sh
+   qemu-system-x86_64 -drive format=raw,file=target/x86_64-unknown-none/debug/bootimage-zer_os.bin
+```
+
+To build and run:
+
+```sh
+   cargo run
 ```

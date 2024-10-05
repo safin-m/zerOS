@@ -70,3 +70,10 @@ if ! command_exists cargo bootimage; then
 else 
     echo "Bootimage is already installed."
 fi
+
+if ! command_exists qemu; then
+    echo "Installing qemu"
+    cargo install qemu
+else 
+    echo "Qemu is already installed."
+fi

@@ -1,3 +1,50 @@
+/// The VGA (Video Graphics Array) buffer is a specific area of memory used to control the display output on a screen.
+/// In VGA text mode, this buffer is typically located at memory address `0xB8000` in the physical address space.
+///
+/// The VGA buffer is organized as a 2D array of characters, where each character is represented by two bytes:
+/// - The first byte contains the ASCII value of the character.
+/// - The second byte contains the color code, which combines the foreground and background colors.
+///
+/// The CPU accesses the VGA buffer through memory-mapped I/O. This means that the CPU can read from and write to the VGA buffer
+/// just like it would with regular RAM, but the writes and reads are directed to the video hardware instead of the main memory.
+///
+/// In OS development, the VGA buffer is used to display text on the screen. This is particularly useful in early stages of OS development
+/// when a graphical user interface is not yet available. By writing to the VGA buffer, the OS can provide feedback, display logs, and interact
+/// with the user through a simple text interface.
+///
+/// Here is a step-by-step explanation of how the VGA buffer is used in OS development:
+///
+/// 1. **Memory Mapping**: The VGA buffer is mapped to a specific physical address (`0xB8000`). The OS needs to ensure that this address is accessible
+///    and not used for other purposes.
+///
+/// 2. **Character Representation**: Each character on the screen is represented by two bytes in the VGA buffer. The first byte is the ASCII value
+///    of the character, and the second byte is the color code.
+///
+/// 3. **Writing to the Buffer**: To display a character on the screen, the OS writes the appropriate ASCII value and color code to the correct
+///    position in the VGA buffer. For example, to display the character 'A' with a white foreground and black background at the top-left corner
+///    of the screen, the OS would write the values `0x41` (ASCII for 'A') and `0x0F` (color code for white on black) to the first two bytes of
+///    the VGA buffer.
+///
+/// 4. **Screen Dimensions**: The VGA text mode typically supports 80 columns and 25 rows. This means the VGA buffer needs to accommodate
+///    80 * 25 * 2 = 4000 bytes.
+///
+/// 5. **Scrolling**: When the screen is full, the OS may need to scroll the contents up to make room for new text. This involves copying
+///    the contents of the VGA buffer up by one row and clearing the last row.
+///
+/// 6. **Cursor Position**: The OS can control the position of the text cursor by writing to specific I/O ports. This allows the OS to
+///    move the cursor to the desired position before writing new characters.
+///
+/// By understanding and utilizing the VGA buffer, OS developers can create a basic text interface for interacting with the user,
+/// displaying logs, and debugging the OS during its early stages of development.
+///
+///
+///
+///
+///
+///
+///
+///
+
 /// Represents the available colors for the VGA text mode.
 ///
 /// The `Color` enum defines the standard 16 colors used in VGA text mode. Each color is represented by a unique `u8` value.

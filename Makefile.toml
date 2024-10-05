@@ -1,0 +1,60 @@
+[tasks.create_build_dir]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build"]
+
+[tasks.create_obj_dir]
+dependencies = ["create_build_dir"]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build/obj"]
+
+[tasks.create_bin_dir]
+dependencies = ["create_build_dir"]
+condition = { platforms = ["linux", "mac"] }
+script = ["mkdir -p build/bin"]
+
+[tasks.header_asm_to_obj]
+dependencies = ["create_obj_dir"]
+command = "nasm"
+args = ["-f", "elf64", "./src/boot/header.asm", "-o", "./build/obj/header.bin"]
+
+[tasks.main_asm_to_obj]
+dependencies = ["create_obj_dir"]
+command = "nasm"
+args = ["-f", "elf64", "./src/boot/main.asm", "-o", "./build/obj/main.o"]
+
+[tasks.main64_asm_to_obj]
+dependencies = ["create_obj_dir"]
+command = "nasm"
+args = ["-f", "elf64", "./src/boot/main64.asm", "-o", "./build/obj/main64.o"]
+
+[tasks.rust_kernel_to_obj]
+dependencies = ["create_obj_dir"]
+script = [
+    "cargo build --release",
+    "cp target/x86_64-unknown-none/release/libzer_os.a ./build/obj/kernel.o"
+]
+
+[tasks.compile_kernel]
+dependencies = ["header_asm_to_obj", "main_asm_to_obj", "main64_asm_to_obj", "rust_kernel_to_obj"]
+script = [
+    "x86_64-elf-ld -T ./src/linker.ld -o ./iso/boot/kernel.bin -ffreestanding -O0 -nostdlib ./build/obj/header.o ./build/obj/main.o ./build/obj/main64.o ./build/obj/kernel.o",
+]
+
+[tasks.generate_iso]
+dependencies = ["compile_kernel"]
+script = [
+    "grub-mkrescue -o ./iso/zer_os.iso ./iso"
+]
+
+[tasks.dbg]
+script =["qemu-system-x86_64 -cdrom format=raw,file=./iso/zer_os.bin -S -s"]
+
+[tasks.run]
+script =["qemu-system-x86_64 -cdrm format=raw,file=./iso/zer_os.iso"]
+
+[tasks.clean_all]
+condition = { platforms = ["linux", "mac"] }
+script = [
+    "echo 'Cleaning build directory...'",
+    "test -d ./build && rm -rf ./build || echo 'Build directory does not exist'",
+]

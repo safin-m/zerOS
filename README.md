@@ -42,23 +42,23 @@ To build and run:
 
 1. Add the following lines to your ./Cargo.toml
 
-```sh
-   [lib]
-   path = "src/main.rs"
-   crate-type = ["staticlib"]
-```
+   ```text
+      [lib]
+      path = "src/main.rs"
+      crate-type = ["staticlib"]
+   ```
 
 2. Generate ISO using the following command
 
-```sh
-   cargo make generate_iso
-```
+   ```sh
+      cargo make generate_iso
+   ```
 
 3. Run:
 
-```sh
-   cargo make run
-```
+   ```sh
+      cargo make run
+   ```
 
 For debugging you could run
 

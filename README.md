@@ -4,7 +4,7 @@ Minimal operating system written in Rust
 
 ## Set up the environment
 
-To set up the environment and to build your own bootloader or use the bootimage tool run the following commands
+To set up the environment run the following commands:
 
 ```sh
    chmod +x ./install-deps.sh
@@ -15,6 +15,8 @@ To set up the environment and to build your own bootloader or use the bootimage 
 ```
 
 ## Build and Run
+
+### Build using rust-based bootloader
 
 The runner is set up to compile, build and run the OS
 
@@ -35,3 +37,5 @@ To build and run:
 ```sh
    cargo run
 ```
+
+### Build using custom bootloader

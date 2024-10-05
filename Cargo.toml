@@ -8,10 +8,6 @@ edition = "2021"
 [dependencies]
 bootloader = "0.9"
 
-[lib]
-path = "src/main.rs"
-crate-type = ["staticlib"]
-
 [profile.dev]
 panic = "abort"
 

@@ -39,3 +39,36 @@ To build and run:
 ```
 
 ### Build using custom bootloader
+
+1. Add the following lines to your ./Cargo.toml
+
+```sh
+   [lib]
+   path = "src/main.rs"
+   crate-type = ["staticlib"]
+```
+
+2. Generate ISO using the following command
+
+```sh
+   cargo make generate_iso
+```
+
+3. Run:
+
+```sh
+   cargo make run
+```
+
+For debugging you could run
+
+```sh
+   cargo make dbg
+```
+
+and then in another terminal (make sure lldb is installed)
+
+```sh
+   lldb
+   gdb-remote 1234
+```

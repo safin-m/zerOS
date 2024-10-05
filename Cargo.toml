@@ -6,15 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nasm-rs = "0.3.0"
+bootloader = "0.9"
 
 [profile.dev]
 panic = "abort"
-lto = true
 
 [profile.release]
 panic = "abort"
-lto = true
 
-[build]
-build = "build.rs"

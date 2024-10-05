@@ -4,17 +4,9 @@ Minimal operating system written in Rust
 
 | **Getting Started** |
 
-## Install Rust
+## Build Process
 
-Install Rust via rustup with this command:
-
-```sh
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-Or follow the instructions here [Rust Installation Guide](https://www.rust-lang.org/tools/install)
-
-### Unix-based Systems
+### Set up the environment
 
 1. Make the `install-deps.sh` script executable:
 
@@ -22,23 +14,15 @@ Or follow the instructions here [Rust Installation Guide](https://www.rust-lang.
    chmod +x install-deps.sh
    ```
 
-2. Run the `install-deps.sh` script to install dependencies:
+2. Run the `install-deps.sh` script to install dependencies and build tools:
 
    ```sh
    ./install-deps.sh
    ```
 
-### Fetch Rust Dependencies
+## Build Binary-ELF OS
 
-Run the following command to fetch the Rust dependencies:
-
-```sh
-cargo fetch
-```
-
-### Build Boot Binary
-
-Run the following command to build the bootloader binary and kernel:
+Run the following command to build the bootable bootloader binary and kernel:
 
 ```sh
 cargo make start

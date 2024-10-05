@@ -2,6 +2,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+mod modules {
+    pub mod vga;
+}
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

@@ -10,7 +10,7 @@
 use core::panic::PanicInfo;
 
 // Declaring a module named vga inside the modules module.
-// This is likely used for handling VGA text mode, which is a common way to output text to the screen in early stages of OS development.
+// This is used for handling VGA text mode, which is a common way to output text to the screen in early stages of OS development.
 mod modules {
     pub mod vga;
 }

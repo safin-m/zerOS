@@ -77,3 +77,10 @@ if ! command_exists qemu; then
 else 
     echo "Qemu is already installed."
 fi
+
+brew tap nativeos/i386-elf-toolchain
+brew install nativeos/i386-elf-toolchain/i386-elf-binutils
+brew install nativeos/i386-elf-toolchain/i386-elf-gcc
+brew install i386-elf-grub
+brew install xorriso
+

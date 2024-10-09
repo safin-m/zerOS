@@ -1,4 +1,6 @@
 use core::fmt;
+use lazy_static::lazy_static;
+use spin::Mutex;
 use volatile::Volatile;
 /// The VGA (Video Graphics Array) buffer is a specific area of memory used to control the display output on a screen.
 /// In VGA text mode, this buffer is typically located at memory address `0xB8000` in the physical address space.
@@ -228,6 +230,9 @@ impl Writer {
     }
 }
 
+/// Implements the `fmt::Write` trait for the `Writer` struct.
+///
+/// This allows the `Writer` to be used with the `write!` and `writeln!` macros.
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
@@ -235,12 +240,54 @@ impl fmt::Write for Writer {
     }
 }
 
-pub fn test() {
-    let mut writer = Writer {
+lazy_static! {
+    /// A global `Writer` instance wrapped in a `Mutex`.
+    ///
+    /// This `Writer` instance is used to write text to the VGA text buffer in a thread-safe manner.
+    /// The `Writer` struct manages the current position in the buffer and the color code for text.
+    /// It provides methods to write individual bytes and strings to the buffer.
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Black, Color::LightGreen),
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
+    });
+}
 
-    writer.write_string(" zerOS x86_64 kernel");
+/// Prints to the VGA text buffer.
+///
+/// This macro uses the `format_args!` macro to format the given arguments
+/// and then calls the internal `_print` function to write the formatted
+/// string to the VGA text buffer.
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
+}
+
+/// Prints to the VGA text buffer, with a newline.
+///
+/// This macro works similarly to the `print!` macro, but it appends a newline
+/// character (`\n`) to the end of the formatted string.
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+/// Internal function to print formatted arguments to the VGA text buffer.
+///
+/// This function is not intended to be used directly. Instead, use the
+/// `print!` and `println!` macros.
+///
+/// # Arguments
+///
+/// * `args` - The formatted arguments to print.
+///
+/// # Panics
+///
+/// This function will panic if it fails to acquire the lock on the VGA writer
+/// or if writing to the VGA buffer fails.
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }

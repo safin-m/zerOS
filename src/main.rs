@@ -9,6 +9,8 @@
 // PanicInfo provides information about panics, which are critical errors.
 use core::panic::PanicInfo;
 
+use modules::vga;
+
 // Declaring a module named vga inside the modules module.
 // This is used for handling VGA text mode, which is a common way to output text to the screen in early stages of OS development.
 mod modules {
@@ -36,6 +38,8 @@ pub extern "C" fn _start() -> ! {
             *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
         }
     }
+
+    vga::test();
 
     loop {}
 }

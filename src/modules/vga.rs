@@ -1,3 +1,5 @@
+use core::fmt;
+use volatile::Volatile;
 /// The VGA (Video Graphics Array) buffer is a specific area of memory used to control the display output on a screen.
 /// In VGA text mode, this buffer is typically located at memory address `0xB8000` in the physical address space.
 ///
@@ -44,7 +46,7 @@
 ///
 ///
 ///
-
+///
 /// Represents the available colors for the VGA text mode.
 ///
 /// The `Color` enum defines the standard 16 colors used in VGA text mode. Each color is represented by a unique `u8` value.
@@ -125,15 +127,15 @@ const BUFFER_WIDTH: usize = 80;
 
 /// Represents the VGA text buffer.
 ///
-/// The `Buffer` struct holds a 2D array of `ScreenChar` representing the entire VGA text buffer.
+/// The `Buffer` struct holds a 2D array of `ScreenChar` wrapped in `Volatile` representing the entire VGA text buffer.
 ///
 /// # Fields
-/// - `chars`: A 2D array of `ScreenChar` with dimensions `BUFFER_HEIGHT` x `BUFFER_WIDTH`.
+/// - `chars`: A 2D array of `Volatile<ScreenChar>` with dimensions `BUFFER_HEIGHT` x `BUFFER_WIDTH`.
 ///
 /// This struct is used to directly manipulate the VGA text buffer for displaying text on the screen.
 #[repr(transparent)]
 struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 /// Provides methods to write text to the VGA text buffer.
@@ -171,22 +173,15 @@ impl Writer {
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col] = ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
                     color_code,
-                };
+                });
                 self.column_position += 1;
             }
         }
     }
 
-    /// Moves to a new line in the VGA text buffer.
-    ///
-    /// This method is currently a placeholder and does not perform any actions.
-    fn new_line(&mut self) {}
-}
-
-impl Writer {
     /// Writes a string to the VGA text buffer.
     ///
     /// # Arguments
@@ -201,4 +196,51 @@ impl Writer {
             }
         }
     }
+
+    /// Moves the cursor to a new line in the VGA text buffer.
+    ///
+    /// This method shifts all rows up by one, effectively removing the top row, and clears the last row. It then resets the column position to 0.
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    /// Clears a row in the VGA text buffer.
+    ///
+    /// # Arguments
+    /// - `row`: The index of the row to clear as a `usize`.
+    ///
+    /// This method writes a blank character to each column in the specified row.
+    fn clear_row(&mut self, row: usize) {
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
+        }
+    }
+}
+
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
+
+pub fn test() {
+    let mut writer = Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Black, Color::LightGreen),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    };
+
+    writer.write_string(" zerOS x86_64 kernel");
 }

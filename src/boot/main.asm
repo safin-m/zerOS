@@ -125,7 +125,7 @@ enable_paging:
 
 error:
     ; Display an error message and halt the system
-    mov dword [0xB8000], 0x4F524F45 ; "EROR"
+    mov dword [0xB8000], 0x4F524F45 ; "ERROR"
     mov dword [0xB8004], 0x4F3A4F52 ; "RO:O"
     mov dword [0xB8000], 0x4F204F20 ; "O O "
     mov byte [0xB8000A], AL         ; Display the specific error character

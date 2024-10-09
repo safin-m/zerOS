@@ -22,7 +22,8 @@ mod modules {
 #[panic_handler]
 // The panic handler function. The ! indicates that this function will never return.
 // In this case, it enters an infinite loop, effectively halting the system.
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
 
@@ -39,7 +40,7 @@ pub extern "C" fn _start() -> ! {
         }
     }
 
-    vga::test();
+    print!("zerOS x86_64 kernel");
 
     loop {}
 }

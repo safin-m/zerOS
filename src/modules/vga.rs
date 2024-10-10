@@ -1,4 +1,5 @@
 use core::fmt;
+use core::fmt::Write;
 use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
@@ -283,7 +284,6 @@ lazy_static! {
 ///
 /// This function is not intended to be used directly. Instead, use the `print!` and `println!` macros.
 pub fn _print_with_color(args: fmt::Arguments, color: ColorCode) {
-    use core::fmt::Write;
     let mut writer = WRITER.lock();
     let original_color = writer.color_code;
     writer.set_color(color);

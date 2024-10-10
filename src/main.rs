@@ -55,7 +55,7 @@ fn panic(info: &PanicInfo) -> ! {
 // A trivial test case that asserts that 1 is equal to 1.
 // This test is used to verify that the test framework is working correctly.
 fn trivial_assertion() {
-    print!("trivial assertion... ");
+    print!(" trivial assertion... ");
     assert_eq!(1, 1);
     println!("[ok]");
 }
@@ -72,10 +72,11 @@ fn trivial_assertion() {
 //
 // The test functions are defined in the test module, which is a convention in Rust for organizing tests.
 pub fn run_test(tests: &[&dyn Fn()]) {
-    println!("Running {} tests", tests.len());
+    println!(" Running tests");
     for test in tests {
         test();
     }
+    println!("", ColorCode::new(Color::Black, Color::Black));
 }
 
 static TO_PRINT: &[u8] = b"Booting the kernel...\n"; // The message to print to the screen.
@@ -88,15 +89,6 @@ static TO_PRINT: &[u8] = b"Booting the kernel...\n"; // The message to print to 
 // The function then enters an infinite loop, effectively halting the system.
 // The extern "C" attribute specifies the calling convention for this function, which is the C calling convention.
 pub extern "C" fn _start() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8; // The address of the VGA buffer in memory.
-
-    for (i, &byte) in TO_PRINT.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte; // Code Page 437 character
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb; // Light cyan color
-        }
-    }
-
     // The following code is used to run tests when the kernel is booted.
     // This is useful for testing the kernel code without having to run it on real hardware.
     #[cfg(test)]
@@ -108,6 +100,15 @@ pub extern "C" fn _start() -> ! {
     );
 
     print!(" kernel loaded", ColorCode::new(Color::White, Color::Black));
+
+    let vga_buffer = 0xb8000 as *mut u8; // The address of the VGA buffer in memory.
+
+    for (i, &byte) in TO_PRINT.iter().enumerate() {
+        unsafe {
+            *vga_buffer.offset(i as isize * 2) = byte; // Code Page 437 character
+            *vga_buffer.offset(i as isize * 2 + 1) = 0xb; // Light cyan color
+        }
+    }
 
     loop {}
 }

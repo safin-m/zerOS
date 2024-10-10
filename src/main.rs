@@ -20,6 +20,7 @@ use core::panic::PanicInfo;
 
 // Importing the println macro from the vga module.
 // This macro is used for printing formatted text to the screen in VGA text mode.
+use crate::vga::{Color, ColorCode};
 use modules::vga;
 
 // Declaring a module named vga inside the modules module.
@@ -37,8 +38,14 @@ mod modules {
 // - `info` : A reference to a PanicInfo struct, which contains information about the panic.
 //
 // In this case, it enters an infinite loop, effectively halting the system.
+#[allow(deprecated)]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+    let panic_color = ColorCode::new(Color::Black, Color::LightRed);
+    if let Some(panic_info) = info.payload().downcast_ref::<&str>() {
+        println_with_color!(panic_color, "Panic occurred: {}", panic_info);
+    } else {
+        println_with_color!(panic_color, "Panic occurred with no message.");
+    }
     loop {}
 }
 
@@ -95,7 +102,12 @@ pub extern "C" fn _start() -> ! {
     #[cfg(test)]
     start_test();
 
-    print!(" zerOS x86_64 kernel");
+    println!(
+        " zerOS x86_64 kernel",
+        ColorCode::new(Color::LightGreen, Color::Black)
+    );
+
+    print!(" kernel loaded", ColorCode::new(Color::White, Color::Black));
 
     loop {}
 }

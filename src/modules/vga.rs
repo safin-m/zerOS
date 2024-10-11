@@ -275,6 +275,21 @@ lazy_static! {
     });
 }
 
+/// Prints to the VGA text buffer.
+/// This macro uses the `format_args!` macro to format the given arguments and then calls the internal `_print` function to write the formatted string to the VGA buffer.
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
+}
+
+/// Prints to the VGA text buffer with a newline.
+/// This macro is similar to `print!`, but it appends a newline character (`\n`) at the end.
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
 /// Prints to the VGA text buffer with a specified color.
 /// This function is used internally by the `print!` and `println!` macros to write formatted text to the VGA buffer with a specific color.
 ///
@@ -296,8 +311,9 @@ pub fn _print_with_color(args: fmt::Arguments, color: ColorCode) {
 /// This macro uses the `format_args!` macro to format the given arguments
 /// and then calls the internal `_print` function to write the formatted
 /// string to the VGA text buffer.
+/// Can also be used to print text in a specific color by providing a color code.
 #[macro_export]
-macro_rules! print {
+macro_rules! printc {
     ($string:expr, $color:expr) => {
         $crate::vga::_print_with_color(format_args!($string), $color);
     };
@@ -310,8 +326,9 @@ macro_rules! print {
 ///
 /// This macro is similar to `print!`, but it appends a newline character (`\n`) at the end.
 /// It uses the `format_args!` macro to format the given arguments and then calls the internal `_print` function to write the formatted string to the VGA text buffer.
+/// Can also be used to print text in a specific color by providing a color code.
 #[macro_export]
-macro_rules! println {
+macro_rules! printlnc {
     ($fmt:expr, $color:expr) => {
         $crate::vga::_print_with_color(format_args!(concat!($fmt, "\n")), $color);
     };
@@ -326,8 +343,10 @@ macro_rules! println {
 ///
 /// This macro is similar to `println!`, but it allows specifying a color code for the text.
 /// It uses the `format_args!` macro to format the given arguments and then calls the internal `_print_with_color` function to write the formatted string to the VGA text buffer with the specified color.
+/// The color code is used for the entire line of text.
+/// Can also be used to print text in a specific color by providing a color code.
 #[macro_export]
-macro_rules! println_with_color {
+macro_rules! printlnc_f {
     ($color:expr, $fmt:expr) => {{
         $crate::vga::_print_with_color(format_args!($fmt), $color);
         $crate::vga::_print_with_color(format_args!("\n"), $color);
@@ -355,4 +374,150 @@ macro_rules! println_with_color {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
+}
+
+/// Tests for the VGA module.
+/// These tests validate the functionality of the VGA text buffer and the Writer struct.
+/// The tests cover writing to the buffer, scrolling, wrapping, and color output.
+/// The tests use the `print!` and `println!` macros to write to the VGA buffer and compare the output with the expected values.
+/// The tests are run using the built-in test framework provided by Rust.
+
+#[test_case]
+fn test_print_simple() {
+    print!("test_println_simple output");
+}
+
+#[test_case]
+fn test_print_many() {
+    for _ in 0..200 {
+        print!("test_print_many output");
+    }
+}
+
+#[test_case]
+fn test_println_simple() {
+    println!("test_println_simple output");
+}
+
+#[test_case]
+fn test_println_many() {
+    for _ in 0..200 {
+        println!("test_println_many output");
+    }
+}
+
+#[test_case]
+fn test_println_output() {
+    let s = "Some test string that fits on a single line";
+    println!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
+}
+
+#[test_case]
+fn test_println_wrapping() {
+    for _ in 0..BUFFER_HEIGHT + 1 {
+        println!("Some test string that should wrap to the next line");
+    }
+
+    for row in 0..BUFFER_HEIGHT - 1 {
+        let screen_char = WRITER.lock().buffer.chars[row][0].read();
+        assert_eq!(char::from(screen_char.ascii_character), 'S');
+    }
+}
+
+#[test_case]
+fn test_printc_simple() {
+    printc!(
+        "test_printc_simple output",
+        ColorCode::new(Color::LightRed, Color::Black)
+    );
+}
+
+#[test_case]
+fn test_printc_many() {
+    for _ in 0..200 {
+        printc!(
+            "test_printc_many output",
+            ColorCode::new(Color::LightRed, Color::Black)
+        );
+    }
+}
+
+#[test_case]
+fn test_printlnc_simple() {
+    printlnc!(
+        "test_printlnc_simple output",
+        ColorCode::new(Color::LightRed, Color::Black)
+    );
+}
+
+#[test_case]
+fn test_printlnc_many() {
+    for _ in 0..200 {
+        printlnc!(
+            "test_printlnc_many output",
+            ColorCode::new(Color::LightRed, Color::Black)
+        );
+    }
+}
+
+#[test_case]
+fn test_printlnc_wrapping() {
+    for _ in 0..BUFFER_HEIGHT + 1 {
+        printlnc!(
+            "Some test string that should wrap to the next line",
+            ColorCode::new(Color::LightRed, Color::Black)
+        );
+    }
+
+    for row in 0..BUFFER_HEIGHT - 1 {
+        let screen_char = WRITER.lock().buffer.chars[row][0].read();
+        assert_eq!(char::from(screen_char.ascii_character), 'S');
+    }
+}
+
+#[test_case]
+fn test_printlnc_f_simple() {
+    printlnc_f!(
+        ColorCode::new(Color::LightRed, Color::Black),
+        "test_printlnc_f_simple output"
+    );
+}
+
+#[test_case]
+fn test_printlnc_f_many() {
+    for _ in 0..200 {
+        printlnc_f!(
+            ColorCode::new(Color::LightRed, Color::Black),
+            "test_printlnc_f_many output"
+        );
+    }
+}
+
+#[test_case]
+fn test_printlnc_f_output() {
+    let s = "Some test string that fits on a single line";
+    printlnc_f!(ColorCode::new(Color::LightRed, Color::Black), "{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
+}
+
+#[test_case]
+fn test_printlnc_f_wrapping() {
+    for _ in 0..BUFFER_HEIGHT + 1 {
+        printlnc_f!(
+            ColorCode::new(Color::LightRed, Color::Black),
+            "Some test string that should wrap to the next line"
+        );
+    }
+
+    for row in 0..BUFFER_HEIGHT - 1 {
+        let screen_char = WRITER.lock().buffer.chars[row][0].read();
+        assert_eq!(char::from(screen_char.ascii_character), 'S');
+    }
 }

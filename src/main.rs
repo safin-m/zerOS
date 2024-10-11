@@ -9,7 +9,7 @@
 #![feature(custom_test_frameworks)]
 // This attribute specifies the test framework to use.
 // In this case, we are using the built-in test framework provided by Rust.
-#![test_runner(crate::run_test)]
+#![test_runner(zer_os::run_test)]
 // This attribute reexports the test harness main function as start_test.
 // This is necessary for running tests because the test harness expects the main function to be named start_test.
 #![reexport_test_harness_main = "start_test"]
@@ -20,6 +20,8 @@ use core::panic::PanicInfo;
 
 // Importing the println macro from the vga module.
 // This macro is used for printing formatted text to the screen in VGA text mode.
+#[allow(unused_imports)]
+use modules::uart;
 use modules::vga;
 use vga::{Color, ColorCode};
 
@@ -27,6 +29,7 @@ use vga::{Color, ColorCode};
 // This is used for handling VGA text mode, which is a common way to output text to the screen in early stages of OS development.
 mod modules {
     pub mod panic_handler;
+    pub mod uart;
     pub mod vga;
 }
 
@@ -40,47 +43,33 @@ mod modules {
 //
 // In this case, it enters an infinite loop, effectively halting the system.
 #[allow(deprecated)]
+#[cfg(not(test))]
 fn panic(info: &PanicInfo) -> ! {
-    let panic_color = ColorCode::new(Color::Black, Color::LightRed);
-    if let Some(panic_info) = info.payload().downcast_ref::<&str>() {
-        println_with_color!(panic_color, "Panic occurred: {}", panic_info);
+    let panic_color = ColorCode::new(Color::LightRed, Color::Black);
+    let panic_message_color = ColorCode::new(Color::Red, Color::Black);
+
+    if let Some(location) = info.location() {
+        printlnc_f!(
+            panic_color,
+            " Panic occurred at file '{}' line {}",
+            location.file(),
+            location.line()
+        );
+        printlnc_f!(panic_message_color, " {}", info.message());
     } else {
-        println_with_color!(panic_color, "Panic occurred with no message.");
+        printlnc_f!(panic_color, " Panic occurred with no message.");
     }
+
+    #[cfg(test)]
+    start_test();
+
     loop {}
 }
 
-// The test_case attribute is used to define a test function.
-// This attribute is used to mark functions as test cases, which are run when testing the code.
-#[test_case]
-// A trivial test case that asserts that 1 is equal to 1.
-// This test is used to verify that the test framework is working correctly.
-fn trivial_assertion() {
-    print!(" trivial assertion... ");
-    assert_eq!(1, 1);
-    println!("[ok]");
-}
-
-// The #[cfg(test)] attribute is used to conditionally compile the test code only when running tests.
-// This is necessary because we don't want to include test code in the final kernel binary.
 #[cfg(test)]
-// This function is used to run tests in OS development.
-// It takes a slice of test functions as input and runs each test in sequence.
-// The tests are defined as functions that take no arguments and return nothing.
-//
-// # Arguments
-// - `tests` : A slice of test functions to run.
-//
-// The test functions are defined in the test module, which is a convention in Rust for organizing tests.
-pub fn run_test(tests: &[&dyn Fn()]) {
-    use modules::panic_handler::{exit_os, OSExitCode};
-
-    println!(" Running tests");
-    for test in tests {
-        test();
-    }
-    println!("", ColorCode::new(Color::Black, Color::Black));
-    exit_os(OSExitCode::Success);
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    zer_os::test_panic_handler(info)
 }
 
 static TO_PRINT: &[u8] = b"Booting the kernel...\n"; // The message to print to the screen.
@@ -98,12 +87,12 @@ pub extern "C" fn _start() -> ! {
     #[cfg(test)]
     start_test();
 
-    println!(
+    printlnc!(
         " zerOS x86_64 kernel",
         ColorCode::new(Color::LightGreen, Color::Black)
     );
 
-    print!(" kernel loaded", ColorCode::new(Color::White, Color::Black));
+    printc!(" kernel loaded", ColorCode::new(Color::White, Color::Black));
 
     let vga_buffer = 0xb8000 as *mut u8; // The address of the VGA buffer in memory.
 

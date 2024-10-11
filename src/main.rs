@@ -20,12 +20,13 @@ use core::panic::PanicInfo;
 
 // Importing the println macro from the vga module.
 // This macro is used for printing formatted text to the screen in VGA text mode.
-use crate::vga::{Color, ColorCode};
 use modules::vga;
+use vga::{Color, ColorCode};
 
 // Declaring a module named vga inside the modules module.
 // This is used for handling VGA text mode, which is a common way to output text to the screen in early stages of OS development.
 mod modules {
+    pub mod panic_handler;
     pub mod vga;
 }
 
@@ -72,11 +73,14 @@ fn trivial_assertion() {
 //
 // The test functions are defined in the test module, which is a convention in Rust for organizing tests.
 pub fn run_test(tests: &[&dyn Fn()]) {
+    use modules::panic_handler::{exit_os, OSExitCode};
+
     println!(" Running tests");
     for test in tests {
         test();
     }
     println!("", ColorCode::new(Color::Black, Color::Black));
+    exit_os(OSExitCode::Success);
 }
 
 static TO_PRINT: &[u8] = b"Booting the kernel...\n"; // The message to print to the screen.

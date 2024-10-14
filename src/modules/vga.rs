@@ -237,6 +237,7 @@ impl Writer {
     /// - `color_code`: The color code to set as a `ColorCode`.
     ///
     /// This method sets the color code to the provided value for the next write operation.
+    #[allow(dead_code)]
     pub fn set_color(&mut self, color_code: ColorCode) {
         self.color_code = color_code;
     }
@@ -247,6 +248,7 @@ impl Writer {
     /// - `color_code`: The color code to set as a `ColorCode`.
     ///
     /// This method resets the color code to the provided value for the next write operation.
+    #[allow(dead_code)]
     pub fn reset_color(&mut self, color_code: ColorCode) {
         self.color_code = color_code;
     }

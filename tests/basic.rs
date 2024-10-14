@@ -3,19 +3,11 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(zer_os::run_test)]
 #![reexport_test_harness_main = "start_test"]
+extern crate zer_os;
+use zer_os::modules::vga;
+use zer_os::println;
 
 use core::panic::PanicInfo;
-
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    start_test();
-
-    loop {}
-}
-
-fn run_test(tests: &[&dyn Fn()]) {
-    unimplemented!();
-}
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -23,6 +15,6 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 #[test_case]
-fn test_println() {
-    println!("test_println output");
+fn test_printing_functionality() {
+    println!("it is printing");
 }

@@ -4,13 +4,15 @@
 #![test_runner(crate::run_test)]
 #![reexport_test_harness_main = "start_test"]
 
-mod modules {
+pub mod modules {
     pub mod panic_handler;
     pub mod uart;
+    pub mod vga;
 }
 
-use crate::modules::uart;
 use core::panic::PanicInfo;
+use modules::uart;
+use modules::vga;
 
 // The Testable trait is used to define testable types.
 // This trait provides a run method that runs the test.

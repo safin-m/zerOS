@@ -12,7 +12,6 @@ pub mod modules {
 
 use core::panic::PanicInfo;
 use modules::uart;
-use modules::vga;
 
 // The Testable trait is used to define testable types.
 // This trait provides a run method that runs the test.

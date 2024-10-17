@@ -4,7 +4,6 @@
 #![test_runner(zer_os::run_test)]
 #![reexport_test_harness_main = "start_test"]
 extern crate zer_os;
-use zer_os::modules::vga;
 use zer_os::println;
 
 use core::panic::PanicInfo;

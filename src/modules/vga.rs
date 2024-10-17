@@ -281,7 +281,7 @@ lazy_static! {
 /// This macro uses the `format_args!` macro to format the given arguments and then calls the internal `_print` function to write the formatted string to the VGA buffer.
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::modules::vga::_print(format_args!($($arg)*)));
 }
 
 /// Prints to the VGA text buffer with a newline.
@@ -317,10 +317,10 @@ pub fn _print_with_color(args: fmt::Arguments, color: ColorCode) {
 #[macro_export]
 macro_rules! printc {
     ($string:expr, $color:expr) => {
-        $crate::vga::_print_with_color(format_args!($string), $color);
+        $crate::modules::vga::_print_with_color(format_args!($string), $color);
     };
     ($($arg:tt)*) => {
-        $crate::vga::_print(format_args!($($arg)*));
+        $crate::modules::vga::_print(format_args!($($arg)*));
     };
 }
 
@@ -332,10 +332,10 @@ macro_rules! printc {
 #[macro_export]
 macro_rules! printlnc {
     ($fmt:expr, $color:expr) => {
-        $crate::vga::_print_with_color(format_args!(concat!($fmt, "\n")), $color);
+        $crate::modules::vga::_print_with_color(format_args!(concat!($fmt, "\n")), $color);
     };
     ($fmt:expr) => {
-        $crate::vga::_print(format_args!(concat!($fmt, "\n")));
+        $crate::modules::vga::_print(format_args!(concat!($fmt, "\n")));
     };
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
@@ -350,12 +350,12 @@ macro_rules! printlnc {
 #[macro_export]
 macro_rules! printlnc_f {
     ($color:expr, $fmt:expr) => {{
-        $crate::vga::_print_with_color(format_args!($fmt), $color);
-        $crate::vga::_print_with_color(format_args!("\n"), $color);
+        $crate::modules::vga::_print_with_color(format_args!($fmt), $color);
+        $crate::modules::vga::_print_with_color(format_args!("\n"), $color);
     }};
     ($color:expr, $fmt:expr, $($arg:tt)*) => {{
-        $crate::vga::_print_with_color(format_args!($fmt, $($arg)*), $color);
-        $crate::vga::_print_with_color(format_args!("\n"), $color);
+        $crate::modules::vga::_print_with_color(format_args!($fmt, $($arg)*), $color);
+        $crate::modules::vga::_print_with_color(format_args!("\n"), $color);
     }};
 }
 
